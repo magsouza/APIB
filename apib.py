@@ -1,11 +1,29 @@
 from random import sample, randint
 from dna import DNA
 
+def gen_individual(track, features):
+    ind = {}
+
+    ind['id'] = track['id']
+    ind['popularity'] = track['popularity']
+    ind['danceability'] = features['danceability']
+    ind['energy'] = features['energy']
+    ind['loudness'] = features['loudness']
+    ind['mode'] = features['mode']
+    ind['speechiness'] = features['speechiness']
+    ind['acousticness'] = features['acousticness']
+    ind['instrumentalness'] = features['instrumentalness']
+    ind['liveness'] = features['liveness']
+    ind['valence'] = features['valence']
+    ind['tempo'] = features['tempo']
+
+    return ind
+
 def init_population(n_parents, initial_playlist, features_dict):
     population = []
 
     for i in range(n_parents):
-        indiv = DNA(features_dict[i], initial_playlist['items'][i]['track'])
+        indiv = gen_individual(initial_playlist['items'][i]['track'], features_dict[i])
         population.append((-1, indiv)) # -1 is the initial fit
     
     return population
