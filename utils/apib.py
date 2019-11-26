@@ -1,5 +1,6 @@
 from random import sample, randint
-import spotify, json
+import utils.spotify_reqs as sp
+import json
 
 def gen_individual(track, features, seed_genres):
     ind = {}
@@ -86,7 +87,7 @@ def nsfw(parents, sp):
     mutation(child)
     targets = target_dict(child)
     track = sp.get_track(child, targets)['tracks'][0]
-    new_feat = sp.get_features(track)
+    new_feat = sp.get_features(track['id'])
     update_details(child, track, new_feat)
     return (-1, child)
 
