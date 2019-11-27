@@ -39,7 +39,7 @@ def init_population(initial_playlist, features_dict, seed_genres):
     return population
 
 def fitness(fit_values, population):
-    for i in range(len(fit_values)):
+    for i in range(len(fit_values)-1, -1, -1):
         population[i] = (int(fit_values[i]), population[i][1])
     population = sorted(population, key=lambda i: i[0])
     return population
