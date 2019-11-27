@@ -1,4 +1,5 @@
 import json, base64, requests, sys
+from random import randint
 
 SPOTIFY_API_BASE_URL = 'https://api.spotify.com'
 API_VERSION = "v1"
@@ -77,27 +78,36 @@ playlist_id = '37i9dQZF1DXcBWIGoYBM5M'
 fields = 'items(track.artists, track.id, track.name, track.popularity, track.preview_url)'
 GET_PLAYLIST_TRACKS_ENDPOINT = f'{SPOTIFY_API_URL}/playlists/{playlist_id}/tracks'
 
-def get_todays_top():
+def get_todays_top(auth_header):
     url = f'{GET_PLAYLIST_TRACKS_ENDPOINT}?fields={fields}'
-    resp = requests.get(url)
-    return resp.json()['items']
+    resp = requests.get(url, headers=auth_header).json()
+    playlist = resp['items']
+    rand_play = []
+    rand = []
+    while len(rand) < 15:
+        i = randint(0, len(playlist)-1)
+        if i not in rand:
+            rand.append(i)
+    for n in rand:
+        rand_play.append(playlist[n])
+    return rand_play
 
 # ---------------- 3. FEATURES REQUEST ------------------------
 GET_TRACK_FEATURES = f'{SPOTIFY_API_URL}/audio-features'
 
-def get_features(track_id):
+def get_features(track_id, auth_header):
     url = f'{GET_TRACK_FEATURES}/{track_id}'
-    resp = requests.get(url)
+    resp = requests.get(url, headers=auth_header)
     return resp.json()
 
 # ---------------- 4. TRACK REQUEST ------------------------
 GET_TRACK_RECOMMENDATIONS = f'{SPOTIFY_API_URL}/recommendations'
 
-def get_track(features, targets):
+def get_track(features, targets, auth_header):
     s_artists = ','.join(features['s_artists'])
     s_genres = features['s_genres']
     s_tracks = ','.join(features['s_tracks'])
 
     url = f'{GET_TRACK_RECOMMENDATIONS}?limit=1&seed_artists={s_artists}&seed_genres={s_genres}&seed_tracks={s_tracks}'
-    resp = requests.get(url)
+    resp = requests.get(url, headers=auth_header)
     return resp.json()

@@ -1,24 +1,22 @@
 from flask import Flask, request, redirect, g, render_template, session
-import utils.spotify_reqs as spotify
+import pickledb
+import utils.apib as genetic
+import utils.spotify_reqs as sp
 
+db = pickledb.load('population.db',True)
 app = Flask(__name__)
 app.secret_key = "that's a secret i'll never tell"
 
-# ----------------------- GENETIC ALGORITHM CODE -------------------------
-
-
-
-
 # ----------------------- AUTH API PROCEDURE -------------------------
 
-@app.route('/auth')
+@app.route('/auth/')
 def auth():
-    return redirect(spotify.AUTH_URL)
+    return redirect(sp.AUTH_URL)
 
 @app.route("/callback/")
 def callback():
     auth_token = request.args['code']
-    auth_header = spotify.authorize(auth_token)
+    auth_header = sp.authorize(auth_token)
     session['auth_header'] = auth_header
     return playlist()
 
@@ -33,7 +31,26 @@ def index():
 
 @app.route('/playlist')
 def playlist():
-    return render_template('playlist.html')
+    if 'auth_header' in session:
+        auth_header = session['auth_header']
+        initial_playlist = sp.get_todays_top(auth_header)
+        features = [sp.get_features(track['track']['id'], auth_header) for track in initial_playlist]
+        population = genetic.init_population(initial_playlist, features, 'indie-pop')
+        db.set('population', population)
+        if valid_token(initial_playlist):
+            return render_template('playlist.html', pop=population)
+    return render_template('home.html')
+
+@app.route('/newplay', methods=["GET", "POST"])
+def mating():
+    if 'auth_header' in session:
+        auth_header = session['auth_header']
+        new_fits = request.form.getlist('rate')
+        population = db.get('population')
+        population = genetic.fitness(new_fits, population)
+        children = genetic.mating(population, sp, auth_header)
+        new_pop = genetic.update_population(population, children)
+        return render_template('playlist.html', pop=new_pop)
 
 if __name__ == '__main__':
     app.run(debug=True)
