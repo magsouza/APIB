@@ -2,3 +2,5 @@
 /utils/__pycache__
 .cache*
 conf.json
+/venv
+population.db
