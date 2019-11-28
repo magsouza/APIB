@@ -3,18 +3,22 @@
 {% block content %}
     <h1>generated playlist</h1>
     <div>
-        <a href="/download" type="button">Download playlist</a>
         <div>
             <form action="/newplay" class="eval" method="POST">
                 {% for music in pop %}
                 <div>
-                    <label>{{ music[1].artist_name }} - <b>{{ music[1].track_name }}</b></label>
                     {% if music[0] == -1 %}
+                    <label>{{ music[1].artist_name }} - <b>{{ music[1].track_name }}</b></label>
                     <input name="rate" type="number" max="100" min="0" placeholder=" Rate">
+                    {% else %}
+                    <label>{{ music[1].artist_name }} - <b>{{ music[1].track_name }}</b>: {{music[0]}}</label>
                     {% endif %}
                 </div>
                 {% endfor %}
-                <button type="submit">gen new playlist</button>
+                <div>
+                    <button type="submit">gen new playlist</button>
+                    <button><a href="/download" type="button">Download playlist</a></button>
+                </div>
             </form>
         </div>
     </div>

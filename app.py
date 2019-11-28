@@ -48,9 +48,11 @@ def mating():
         auth_header = session['auth_header']
         new_fits = request.form.getlist('rate')
         population = db.get('population')
+        avg = sum([ind[0] for ind in population])
         population = genetic.fitness(new_fits, population)
         children = genetic.mating(population, sp, auth_header)
         new_pop = genetic.update_population(population, children)
+        db.set('population', new_pop)
         return render_template('playlist.html', pop=new_pop)
 
 @app.route('/download')
