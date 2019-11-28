@@ -41,7 +41,6 @@ def init_population(initial_playlist, features_dict, seed_genres):
 def fitness(fit_values, population):
     for i in range(len(fit_values)-1, -1, -1):
         population[i] = (int(fit_values[i]), population[i][1])
-    population = sorted(population, key=lambda i: i[0])
     return population
 
 def mating(population, sp, auth_header):
@@ -53,7 +52,8 @@ def mating(population, sp, auth_header):
     return children
 
 def update_population(population, children):
-    new_pop = population[:10]
+    population = sorted(population, key=lambda i: i[0])
+    new_pop = population[5:]
     for child in children:
         new_pop.append(child)
     return new_pop
