@@ -2,6 +2,9 @@
 
 {% block content %}
     <h1>generated playlist</h1>
+    {% if avg > 0 %}
+    <p>last population fitness average: <b>{{avg}}</b></p>
+    {% endif %}
     <div>
         <div>
             <form action="/newplay" class="eval" method="POST">

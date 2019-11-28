@@ -39,7 +39,7 @@ def playlist():
         population = genetic.init_population(initial_playlist, features, 'indie-pop')
         db.set('population', population)
         if valid_token(initial_playlist):
-            return render_template('playlist.html', pop=population)
+            return render_template('playlist.html', pop=population, avg=0)
     return render_template('home.html')
 
 @app.route('/newplay', methods=["GET", "POST"])
@@ -48,12 +48,13 @@ def mating():
         auth_header = session['auth_header']
         new_fits = request.form.getlist('rate')
         population = db.get('population')
-        avg = sum([ind[0] for ind in population])
         population = genetic.fitness(new_fits, population)
         children = genetic.mating(population, sp, auth_header)
         new_pop = genetic.update_population(population, children)
         db.set('population', new_pop)
-        return render_template('playlist.html', pop=new_pop)
+        avg = sum([ind[0] for ind in new_pop])/len(new_pop)
+        avg = float(f'{avg:.2f}')
+        return render_template('playlist.html', pop=new_pop, avg=avg)
 
 @app.route('/download')
 def download():
