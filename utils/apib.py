@@ -105,7 +105,7 @@ def nsfw(parents, sp, auth_header):
                     ('artist_id', '_'), ('preview_url', '_')] + seeds + p1 + p2)
     mutation(child)
     targets = target_dict(child)
-    track = sp.get_track(child, targets, auth_header)['tracks'][0]
+    track = sp.get_track(child, targets, auth_header)['tracks'][randint(0,9)]
     new_feat = sp.get_features(track['id'], auth_header)
     update_details(child, track, new_feat)
     return (-1, child)
