@@ -26,6 +26,7 @@ def valid_token(resp):
 # -------------------------- API REQUESTS ----------------------------
 
 @app.route('/')
+@app.route('/home')
 def index():
     return render_template('home.html')
 
@@ -51,6 +52,15 @@ def mating():
         children = genetic.mating(population, sp, auth_header)
         new_pop = genetic.update_population(population, children)
         return render_template('playlist.html', pop=new_pop)
+
+@app.route('/download')
+def download():
+    if 'auth_header' in session:
+        auth_header =  session['auth_header']
+        playlist_id = sp.create_playlist(auth_header)
+        population = db.get('population')
+        sp.fill_playlist(population, playlist_id, auth_header)
+        return render_template('download.html')
 
 if __name__ == '__main__':
     app.run(debug=True)

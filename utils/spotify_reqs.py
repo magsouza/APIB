@@ -26,7 +26,7 @@ CLIENT_SECRET = config['SECRET']
 
 # server side parameter
 REDIRECT_URI = 'http://127.0.0.1:5000/callback/'
-SCOPE = 'playlist-modify-public'
+SCOPE = 'playlist-modify-public user-read-private user-read-email'
 STATE = ''
 SHOW_DIALOG_bool = True
 SHOW_DIALOG_str = str(SHOW_DIALOG_bool).lower()
@@ -111,3 +111,30 @@ def get_track(features, targets, auth_header):
     url = f'{GET_TRACK_RECOMMENDATIONS}?limit=1&seed_artists={s_artists}&seed_genres={s_genres}&seed_tracks={s_tracks}'
     resp = requests.get(url, headers=auth_header)
     return resp.json()
+
+# ---------------- 5. ME REQUEST ------------------------
+ME = f'{SPOTIFY_API_URL}/me'
+def get_username(auth_header):
+    resp = requests.get(ME, headers=auth_header)
+    return resp.json()['id']
+
+# ---------------- 6. CREATE PLAYLIST REQUEST ------------------------
+CREATE_PLAYLIST = f'{SPOTIFY_API_URL}/users'
+
+def create_playlist(auth_header):
+    username = get_username(auth_header)
+    url = f'{CREATE_PLAYLIST}/{username}/playlists'
+    request_body = json.dumps({"name": "a playlist is born"})
+    resp = requests.post(url, request_body, headers=auth_header)
+    return resp.json()['id']
+
+# ---------------- 7. FILL PLAYLIST REQUEST ------------------------
+FILL_PLAYLIST = f'{SPOTIFY_API_URL}/playlists'
+
+def fill_playlist(population, id, auth_header):
+    url = f'{FILL_PLAYLIST}/{id}/tracks?uris='
+    for track in population:
+        url = f"{url}spotify%3Atrack%3A{track[1]['track_id']}%2C"
+    url = url[:len(url)-3]
+    resp = requests.post(url, headers=auth_header)
+    return resp
