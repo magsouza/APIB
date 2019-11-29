@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>seed genres</h1>
+    <div>
+        <div>
+            <form action="/playlist" class="seedgenres" method="POST">
+                {% for genre in genres %}
+                <div>
+                    <input type="radio" name="check" value={{genre}}> {{genre}}
+                </div>
+                {% endfor %}
+                <button type="submit">gen initial playlist</button>
+            </form>
+        </div>
+    </div>
+{% endblock %}

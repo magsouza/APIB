@@ -1,5 +1,6 @@
 from random import sample, randint
-import spotify, json
+import utils.spotify_reqs as sp
+import json
 
 def gen_individual(track, features, seed_genres):
     ind = {}
@@ -37,12 +38,31 @@ def init_population(initial_playlist, features_dict, seed_genres):
     
     return population
 
-def fitness():
-    # tem que fazer né kk
-    pass
+def fitness(fit_values, population):
+    for i in range(len(fit_values)):
+        if len(fit_values) == 15:
+            population[i] = (int(fit_values[i]), population[i][1])
+        else:
+            population[10+i] = (int(fit_values[i]), population[10+i][1])
+    return population
+
+def mating(population, sp, auth_header):
+    children = []
+    for _ in range(5):
+        parents = parent_select(population)
+        ch = nsfw(parents, sp, auth_header)
+        children.append(ch)
+    return children
+
+def update_population(population, children):
+    population = sorted(population, key=lambda i: i[0], reverse=True)
+    new_pop = population[:10]
+    for child in children:
+        new_pop.append(child)
+    return new_pop
 
 def select_index(probs, k):
-    for i in range(probs):
+    for i in range(len(probs)):
         if k < probs[i]:
             return i
     return -1
@@ -67,26 +87,26 @@ def parent_select(population, n_parents=2):
         
         r = randint(0,99)
         pi = select_index(prob, r)
-        parents.append(population[pi])
-        sample.remove(population[pi])
+        parents.append(pop_sample[pi])
+        pop_sample.remove(pop_sample[pi])
     
     return parents
 
 def mutation(child):
     child['popularity'] = (randint(0, 100) + child['popularity']) % 100
 
-def nsfw(parents, sp):
+def nsfw(parents, sp, auth_header):
     p1 = list(parents[0][1].items())[7:13]
     p2 = list(parents[1][1].items())[13:]
-    seeds = [('s_artists', [parent[1]['artist_id'] for parent in parents]), \
+    seeds = [('s_artists', [parent[1]['artist_id'] for parent in parents]), 
             ('s_tracks', [parent[1]['track_id'] for parent in parents])]
 
-    child = dict([('track_name', '_'), ('track_id', '_'), ('artist_name', '_'), \
+    child = dict([('track_name', '_'), ('track_id', '_'), ('artist_name', '_'), 
                     ('artist_id', '_'), ('preview_url', '_')] + seeds + p1 + p2)
     mutation(child)
     targets = target_dict(child)
-    track = sp.get_track(child, targets)['tracks'][0]
-    new_feat = sp.get_features(track)
+    track = sp.get_track(child, targets, auth_header)['tracks'][randint(0,9)]
+    new_feat = sp.get_features(track['id'], auth_header)
     update_details(child, track, new_feat)
     return (-1, child)
 
