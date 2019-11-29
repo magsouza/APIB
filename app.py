@@ -1,9 +1,11 @@
-from flask import Flask, request, redirect, g, render_template, session
+from flask import Flask, request, redirect, render_template, session
+import json
 import pickledb
 import utils.apib as genetic
 import utils.spotify_reqs as sp
 
-db = pickledb.load('population.db',True)
+db = pickledb.load('population.db', True)
+db.load('genres.db', True)
 app = Flask(__name__)
 app.secret_key = "that's a secret i'll never tell"
 
@@ -18,7 +20,7 @@ def callback():
     auth_token = request.args['code']
     auth_header = sp.authorize(auth_token)
     session['auth_header'] = auth_header
-    return playlist()
+    return genres()
 
 def valid_token(resp):
     return resp is not None and not 'error' in resp
@@ -30,13 +32,14 @@ def valid_token(resp):
 def index():
     return render_template('home.html')
 
-@app.route('/playlist')
+@app.route('/playlist', methods=['GET', 'POST'])
 def playlist():
     if 'auth_header' in session:
         auth_header = session['auth_header']
+        seed_genres = request.form.getlist('check')
         initial_playlist = sp.get_todays_top(auth_header)
         features = [sp.get_features(track['track']['id'], auth_header) for track in initial_playlist]
-        population = genetic.init_population(initial_playlist, features, 'indie-pop')
+        population = genetic.init_population(initial_playlist, features, seed_genres)
         db.set('population', population)
         if valid_token(initial_playlist):
             return render_template('playlist.html', pop=population, avg=0)
@@ -64,6 +67,14 @@ def download():
         population = db.get('population')
         sp.fill_playlist(population, playlist_id, auth_header)
         return render_template('download.html')
+
+@app.route('/genres', methods=['GET', 'POST'])
+def genres():
+    if 'auth_header' in session:
+        auth_header = session['auth_header']
+        with open('genres.json') as g:
+            seeds = json.load(g)
+        return render_template('genres.html', genres=seeds['genres'])
 
 if __name__ == '__main__':
     app.run(debug=True)

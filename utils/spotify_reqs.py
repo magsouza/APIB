@@ -106,6 +106,7 @@ GET_TRACK_RECOMMENDATIONS = f'{SPOTIFY_API_URL}/recommendations'
 def get_track(features, targets, auth_header):
     s_artists = ','.join(features['s_artists'])
     s_genres = features['s_genres']
+    s_genres = 'k-pop'
     s_tracks = ','.join(features['s_tracks'])
 
     url = f'{GET_TRACK_RECOMMENDATIONS}?limit=10&seed_artists={s_artists}&seed_genres={s_genres}&seed_tracks={s_tracks}'

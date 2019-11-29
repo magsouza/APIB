@@ -12,7 +12,7 @@
                 <div>
                     {% if music[0] == -1 %}
                     <label>{{ music[1].artist_name }} - <b>{{ music[1].track_name }}</b></label>
-                    <input name="rate" type="number" max="100" min="0" placeholder=" Rate">
+                    <input name="rate" type="number" max="100" min="0" placeholder="Rate">
                     {% else %}
                     <label>{{ music[1].artist_name }} - <b>{{ music[1].track_name }}</b>: {{music[0]}}</label>
                     {% endif %}
@@ -20,7 +20,7 @@
                 {% endfor %}
                 <div>
                     <button type="submit">gen new playlist</button>
-                    <button><a href="/download" type="button">Download playlist</a></button>
+                    <button><a href="" type="button">Download playlist</a></button>
                 </div>
             </form>
         </div>

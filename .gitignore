@@ -3,4 +3,4 @@
 .cache*
 conf.json
 /venv
-population.db
+*.db
